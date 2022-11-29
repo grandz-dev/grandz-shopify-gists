@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Swatches",
+    "settings": [
+      {
+        "type": "text",
+        "id": "swatches_trigger",
+        "label": "Swatches trigger",
+        "default": "Colour",
+        "info": "Option name to use as swatches"
+      },
+      {
+        "type": "paragraph",
+        "content": "Define color name and imagery for it by diving them with three colons, see the example syntax under the textarea. Each color must be on a new line."
+      },
+      {
+        "type": "richtext",
+        "id": "coll_filter_colors",
+        "label": "Swatch colors",
+        "info": "Use the following syntax, for example: Light Grey ::: #c1bebe"
+      },
+      {
+        "type": "richtext",
+        "id": "coll_filter_images",
+        "label": "Swatch images",
+        "info": "Use the following syntax, for example: Pattern ::: https://cdn.shopify.com/s/files/1/0552/1322/8066/files/pattern.png?v=1669727491"
+      }
+    ]
+  }
+]

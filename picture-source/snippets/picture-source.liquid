@@ -1,0 +1,18 @@
+{% comment %}
+Accepts:
+    {object} image
+    {string} [type]
+    {string} [media]
+    {string} [sizes]
+    {string} [width]
+    {string} [height]
+{% endcomment %}
+
+<source
+        srcset="{{ image | image_url: width: image.width | image_tag | split: 'srcset="' | last | split: '"' | first }}"
+        {% if type != blank -%} type="{{ type }}" {%- endif %}
+        {% if media != blank -%} media="{{ media }}" {%- endif %}
+        {% if sizes != blank -%} sizes="{{ sizes }}" {%- endif %}
+        {% if width != blank -%} width="{{ width }}" {%- endif %}
+        {% if height != blank -%} height="{{ height }}" {%- endif %}
+/>

@@ -1,0 +1,28 @@
+<style>
+    {% assign color_arr = settings.coll_filter_colors |  replace: '<p>', '' |  replace: '</p>', '' | newline_to_br | strip_newlines | lstrip | replace:'<br>', 'll_ll' | replace:'<br/>', 'll_ll' | replace:'<br />', 'll_ll'| replace:' :::', ':::'| replace:'::: ', ':::'  | strip_html %}
+    {% assign color_arr = color_arr | split:'ll_ll' %}
+
+    {%- for color_arr_items in color_arr -%}
+        {% assign color_arr_item = color_arr_items | split:':::' %}
+        {%- if color_arr_item[1] contains "|" -%}
+            {% assign gradient = color_arr_item[1] | split:'|'  %}
+            [title="{{color_arr_item[0] | lstrip }}"]  {
+                background: linear-gradient(to left, {{gradient[1]}}, {{gradient[1]}} 50%, {{gradient[0]}} 50%, {{gradient[0]}} 100%) !important
+            }
+            {% assign text_color = gradient[0]  %}
+        {%- else -%}
+            [title="{{color_arr_item[0] | lstrip }}"] {background-color:{{color_arr_item[1]}} !important;}
+        {%- endif -%}
+    {%- endfor -%}
+
+    {% assign image_arr = settings.coll_filter_images |  replace: '<p>', '' |  replace: '</p>', '' | newline_to_br | strip_newlines | lstrip | replace:'<br>', 'll_ll' | replace:'<br/>', 'll_ll' | replace:'<br />', 'll_ll'| replace:' :::', ':::'| replace:'::: ', ':::' | strip_html   %}
+    {% assign image_arr = image_arr | split:'ll_ll' %}
+    {%- for image_arr_items in image_arr -%}
+        {% assign image_arr_item = image_arr_items | split:':::' %}
+        {%- assign variant_metafields_variant_image = image_arr_item[1]  |  replace: '<p>', '' |  replace: '</p>', '' | replace: '.jpg', '_400x.jpg' | replace: '.JPG', '_400x.JPG' | replace: '.jpeg', '_400x.jpeg' | replace: '.JPEG', '_400x.JPEG' | replace: '.png', '_400x.png' | replace: '.PNG', '_400x.PNG' | replace: '.gif', '_400x.gif' | replace: '.GIF', '_400x.GIF'  -%}
+        [title="{{image_arr_item[0] | lstrip }}"]  {
+            background-image:url({{ variant_metafields_variant_image }}) !important;
+            background-size: cover !important;
+        }
+    {%- endfor -%}
+</style>

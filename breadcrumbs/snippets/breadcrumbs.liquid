@@ -1,0 +1,336 @@
+
+{% comment %}
+Additional breadcrumbs can be provided using metafields with a list of string values where the pattern is Link title --- link-url.com
+
+Metafields for additional breadcrumbs (e.g. collection.metafields.breadcrumbs.list):
+    namespace - breadcrumbs
+    key - list
+
+{% endcomment %}
+
+{%- unless template == 'index' or template == 'cart' or template == 'list-collections' or template == '404' -%}
+    {%- assign t = template | split: '.' | first -%}
+    <nav class="o-breadcrumbs" role="navigation" aria-label="o-breadcrumbs" >
+        <ol class="o-breadcrumbs__list" itemscope itemtype="https://schema.org/BreadcrumbList">
+            <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a itemprop="item" class="o-breadcrumbs__link" href="/"><span itemprop="name">Home</span></a>
+                <meta itemprop="position" content="1" />
+            </li>
+            {% liquid
+                assign item_position = 1
+                assign schema = ''
+            %}
+            {%- case t -%}
+                {%- when 'page' -%}
+
+                    {% if page.metafields.breadcrumbs.list != blank %}
+                        {% for breadcrumb in collection.metafields.breadcrumbs.list.value %}
+                            {% liquid
+                                assign breadcrumb_title = breadcrumb | split: '---' | first | strip
+                                assign breadcrumb_url = breadcrumb | split: '---' | last | strip
+                            %}
+                            {% assign item_position = item_position | plus: 1 %}
+                            <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                                <a itemprop="item" class="o-breadcrumbs__link" href="{{ breadcrumb_url }}"><span itemprop="name">{{ breadcrumb_title }}</span></a>
+                                <meta itemprop="position" content="{{ item_position }}" />
+                            </li>
+                            {%- capture schema -%}
+                                {{ schema }} ---
+                                "@type": "ListItem",
+                                "position": {{ item_position }},
+                                "item": "{{ breadcrumb_url }}",
+                                "name": "{{ breadcrumb_title | replace: '"', "'"  }}"
+                            {%- endcapture %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {% assign item_position = item_position | plus: 1 %}
+                    <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                        <a itemprop="item" class="o-breadcrumbs__link" href="{{ page.url }}" aria-current="page"><span itemprop="name">{{ page.title }}</span></a>
+                        <meta itemprop="position" content="{{ item_position }}" />
+                    </li>
+                    {%- capture schema -%}
+                        {{ schema }} ---
+                        "@type": "ListItem",
+                        "position": {{ item_position }},
+                        "item": "{{ shop.url }}{{ page.url }}",
+                        "name": "{{ page.title | replace: '"', "'"  }}"
+                    {%- endcapture %}
+
+                {%- when 'product' -%}
+                    {%- if collection.url -%}
+
+                        {% if collection.metafields.breadcrumbs.list != blank %}
+                            {% for breadcrumb in collection.metafields.breadcrumbs.list.value %}
+                                {% liquid
+                                    assign breadcrumb_title = breadcrumb | split: '---' | first | strip
+                                    assign breadcrumb_url = breadcrumb | split: '---' | last | strip
+                                %}
+                                {% assign item_position = item_position | plus: 1 %}
+                                <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                                    <a itemprop="item" class="o-breadcrumbs__link" href="{{ breadcrumb_url }}"><span itemprop="name">{{ breadcrumb_title }}</span></a>
+                                    <meta itemprop="position" content="{{ item_position }}" />
+                                </li>
+                                {%- capture schema -%}
+                                    {{ schema }} ---
+                                    "@type": "ListItem",
+                                    "position": {{ item_position }},
+                                    "item": "{{ breadcrumb_url }}",
+                                    "name": "{{ breadcrumb_title | replace: '"', "'"  }}"
+                                {%- endcapture %}
+                            {% endfor %}
+                        {% endif %}
+
+                        {% assign item_position = item_position | plus: 1 %}
+                        <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                            <a itemprop="item" class="o-breadcrumbs__link" href="{{ collection.url }}"><span itemprop="name">{{ collection.title }}</span></a>
+                            <meta itemprop="position" content="{{ item_position }}" />
+                        </li>
+                        {%- capture schema -%}
+                            {{ schema }} ---
+                            "@type": "ListItem",
+                            "position": {{ item_position }},
+                            "item": "{{ shop.url }}{{ collection.url }}",
+                            "name": "{{ collection.title | replace: '"', "'"  }}"
+                        {%- endcapture %}
+
+                    {%- endif -%}
+
+                    {% assign item_position = item_position | plus: 1 %}
+                    <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                        <a itemprop="item" class="o-breadcrumbs__link" href="{{ product.url }}" aria-current="page"><span itemprop="name">{{ product.title }}</span></a>
+                        <meta itemprop="position" content="{{ item_position }}" />
+                    </li>
+                    {%- capture schema -%}
+                        {{ schema }} ---
+                        "@type": "ListItem",
+                        "position": {{ item_position }},
+                        "item": "{{ shop.url }}{{ product.url }}",
+                        "name": "{{ product.title | replace: '"', "'"  }}"
+                    {%- endcapture %}
+
+                {%- when 'collection' and collection.handle -%}
+
+                    {% if collection.metafields.breadcrumbs.list != blank %}
+                        {% for breadcrumb in collection.metafields.breadcrumbs.list.value %}
+                            {% liquid
+                                assign breadcrumb_title = breadcrumb | split: '---' | first | strip
+                                assign breadcrumb_url = breadcrumb | split: '---' | last | strip
+                            %}
+                            {% assign item_position = item_position | plus: 1 %}
+                            <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                                <a itemprop="item" class="o-breadcrumbs__link" href="{{ breadcrumb_url }}"><span itemprop="name">{{ breadcrumb_title }}</span></a>
+                                <meta itemprop="position" content="{{ item_position }}" />
+                            </li>
+                            {%- capture schema -%}
+                                {{ schema }} ---
+                                "@type": "ListItem",
+                                "position": {{ item_position }},
+                                "item": "{{ breadcrumb_url }}",
+                                "name": "{{ breadcrumb_title | replace: '"', "'"  }}"
+                            {%- endcapture %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {%- if current_tags -%}
+
+                        {% assign item_position = item_position | plus: 1 %}
+                        <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                            <a itemprop="item" class="o-breadcrumbs__link" href="{{ collection.url }}"><span itemprop="name">{{ collection.title }}</span></a>
+                            <meta itemprop="position" content="{{ item_position }}" />
+                        </li>
+                        {%- capture schema -%}
+                            {{ schema }} ---
+                            "@type": "ListItem",
+                            "position": {{ item_position }},
+                            "item": "{{ shop.url }}{{ collection.url }}",
+                            "name": "{{ collection.title | replace: '"', "'"  }}"
+                        {%- endcapture %}
+
+                        {% assign item_position = item_position | plus: 1 %}
+                        <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                            {%- capture tag_url -%}{{ collection.url }}/{{ current_tags | join: "+" }}{%- endcapture -%}
+                            <a itemprop="item" class="o-breadcrumbs__link" href="{{ tag_url }}" aria-current="page"><span itemprop="name">{{ current_tags | join: " + " }}</span></a>
+                            <meta itemprop="position" content="{{ item_position }}" />
+                        </li>
+                        {%- capture schema -%}
+                            {{ schema }} ---
+                            "@type": "ListItem",
+                            "position": {{ item_position }},
+                            "item": "{{ shop.url }}{{ tag_url }}",
+                            "name": "{{ current_tags | replace: '"', "'"  | join: " + " }}"
+                        {%- endcapture %}
+
+                    {%- else -%}
+
+                        {% assign item_position = item_position | plus: 1 %}
+                        <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                            <a itemprop="item" class="o-breadcrumbs__link" href="{{ collection.url }}" aria-current="page"><span itemprop="name">{{ collection.title }}</span></a>
+                            <meta itemprop="position" content="{{ item_position }}" />
+                        </li>
+                        {%- capture schema -%}
+                            {{ schema }} ---
+                            "@type": "ListItem",
+                            "position": {{ item_position }},
+                            "item": "{{ shop.url }}{{ collection.url }}",
+                            "name": "{{ collection.title | replace: '"', "'"  }}"
+                        {%- endcapture %}
+
+                    {%- endif -%}
+                {%- when 'blog' -%}
+                    {%- if current_tags -%}
+
+                        {% assign item_position = item_position | plus: 1 %}
+                        <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                            <a itemprop="item" class="o-breadcrumbs__link" href="{{ blog.url }}"><span itemprop="name">{{ blog.title }}</span></a>
+                            <meta itemprop="position" content="{{ item_position }}" />
+                        </li>
+                        {%- capture schema -%}
+                            {{ schema }} ---
+                            "@type": "ListItem",
+                            "position": {{ item_position }},
+                            "item": "{{ shop.url }}{{ blog.url }}",
+                            "name": "{{ blog.title | replace: '"', "'"  }}"
+                        {%- endcapture %}
+
+                        {% assign item_position = item_position | plus: 1 %}
+                        <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                            {%- capture tag_url -%}{{ blog.url }}/tagged/{{ current_tags | join: "+" }}{%- endcapture -%}
+                            <a itemprop="item" class="o-breadcrumbs__link" href="{{ tag_url }}" aria-current="page"><span itemprop="name">{{ current_tags | join: " + " }}</span></a>
+                            <meta itemprop="position" content="{{ item_position }}" />
+                        </li>
+                        {%- capture schema -%}
+                            {{ schema }} ---
+                            "@type": "ListItem",
+                            "position": {{ item_position }},
+                            "item": "{{ shop.url }}{{ tag_url }}",
+                            "name": "{{ current_tags | replace: '"', "'"  | join: " + " }}"
+                        {%- endcapture %}
+
+                    {%- else -%}
+
+                        {% assign item_position = item_position | plus: 1 %}
+                        <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                            <a itemprop="item" class="o-breadcrumbs__link" href="{{ blog.url }}" aria-current="page"><span itemprop="name">{{ blog.title }}</span></a>
+                            <meta itemprop="position" content="{{ item_position }}" />
+                        </li>
+                        {%- capture schema -%}
+                            {{ schema }} ---
+                            "@type": "ListItem",
+                            "position": {{ item_position }},
+                            "item": "{{ shop.url }}{{ blog.url }}",
+                            "name": "{{ blog.title | replace: '"', "'"  }}"
+                        {%- endcapture %}
+
+                    {%- endif -%}
+                {%- when 'article' -%}
+
+                    {% assign item_position = item_position | plus: 1 %}
+                    <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                        <a itemprop="item" class="o-breadcrumbs__link" href="{{ blog.url }}"><span itemprop="name">{{ blog.title }}</span></a>
+                        <meta itemprop="position" content="{{ item_position }}" />
+                    </li>
+                    {%- capture schema -%}
+                        {{ schema }} ---
+                        "@type": "ListItem",
+                        "position": {{ item_position }},
+                        "item": "{{ shop.url }}{{ blog.url }}",
+                        "name": "{{ blog.title | replace: '"', "'"  }}"
+                    {%- endcapture %}
+
+                    {% assign item_position = item_position | plus: 1 %}
+                    <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                        <a itemprop="item" class="o-breadcrumbs__link" href="{{ article.url }}" aria-current="page"><span itemprop="name">{{ article.title }}</span></a>
+                        <meta itemprop="position" content="{{ item_position }}" />
+                    </li>
+                    {%- capture schema -%}
+                        {{ schema }} ---
+                        "@type": "ListItem",
+                        "position": {{ item_position }},
+                        "item": "{{ shop.url }}{{ article.url }}",
+                        "name": "{{ article.title | replace: '"', "'"  }}"
+                    {%- endcapture %}
+
+                {%- when 'customers/order' -%}
+
+                    {% assign item_position = item_position | plus: 1 %}
+                    <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                        <a itemprop="item" class="o-breadcrumbs__link" href="{{ routes.account_url }}"><span itemprop="name">{{ 'customer.account.title' | t }}</span></a>
+                        <meta itemprop="position" content="{{ item_position }}" />
+                    </li>
+                    {%- capture schema -%}
+                        {{ schema }} ---
+                        "@type": "ListItem",
+                        "position": {{ item_position }},
+                        "item": "{{ shop.url }}{{ routes.account_url }}",
+                        "name": "{{ 'customer.account.title' | t }}"
+                    {%- endcapture %}
+
+                    {% assign item_position = item_position | plus: 1 %}
+                    <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                        <a itemprop="item" class="o-breadcrumbs__link" href="{{ request.path }}" aria-current="page"><span itemprop="name">{{ page_title }}</span></a>
+                        <meta itemprop="position" content="{{ item_position }}" />
+                    </li>
+                    {%- capture schema -%}
+                        {{ schema }} ---
+                        "@type": "ListItem",
+                        "position": {{ item_position }},
+                        "item": "{{ shop.url }}{{ request.path }}",
+                        "name": "{{ page_title | replace: '"', "'"  }}"
+                    {%- endcapture %}
+
+                {%- when 'search' -%}
+
+                    {% assign item_position = item_position | plus: 1 %}
+                    <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                        <a itemprop="item" class="o-breadcrumbs__link" href="{{ request.path }}" aria-current="page"><span itemprop="name">{{ 'general.search.heading.other' | t }}</span></a>
+                        <meta itemprop="position" content="{{ item_position }}" />
+                    </li>
+                    {%- capture schema -%}
+                        {{ schema }} ---
+                        "@type": "ListItem",
+                        "position": {{ item_position }},
+                        "item": "{{ shop.url }}{{ request.path }}",
+                        "name": "{{ 'general.search.heading.other' | t }}"
+                    {%- endcapture %}
+
+                {%- else -%}
+
+                    {% assign item_position = item_position | plus: 1 %}
+                    <li class="o-breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                        <a itemprop="item" class="o-breadcrumbs__link" href="{{ request.path }}" aria-current="page"><span itemprop="name">{{ page_title }}</span></a>
+                        <meta itemprop="position" content="{{ item_position }}" />
+                    </li>
+                    {%- capture schema -%}
+                        {{ schema }} ---
+                        "@type": "ListItem",
+                        "position": {{ item_position }},
+                        "item": "{{ shop.url }}{{ request.path }}",
+                        "name": "{{ page_title | replace: '"', "'"  }}"
+                    {%- endcapture %}
+
+            {%- endcase -%}
+            {% assign schema_arr = schema | remove_first: '---' | split: '---' %}
+        </ol>
+    </nav>
+
+    <script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "BreadcrumbList",
+			"itemListElement": [
+				{
+					"@type": "ListItem",
+					"position": 1,
+					"name": "Home",
+					"item":  "{{ shop.url }}"
+				}
+				{%- for item_schema in schema_arr -%}
+				,{
+				    {{ item_schema }}
+				}
+				{%- endfor -%}
+			]
+		}
+	</script>
+{%- endunless -%}
